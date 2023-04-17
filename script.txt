@@ -1,0 +1,23 @@
+import requests
+from bs4 import BeautifulSoup
+#code produced with help of chatgpt
+
+# replace "url" with the actual URL of the webpage you want to scrape
+url = "https://www.cs.huji.ac.il/~shais/UnderstandingMachineLearning/understanding-machine-learning-theory-algorithms.pdf"
+
+# send a GET request to the URL
+response = requests.get(url)
+
+# parse the HTML content using BeautifulSoup
+soup = BeautifulSoup(response.content, "html.parser")
+
+# get the text content of the page
+text = soup.get_text()
+
+# create an HTML file and write the text content to it
+with open("Google search link 8.html", "w", encoding="utf-8") as file:
+    file.write("<!DOCTYPE html>\n<html>\n<head>\n<meta charset='utf-8'>\n<title>" + url + "</title>\n</head>\n<body>\n")
+    file.write("<pre>" + text + "</pre>\n")
+    file.write("</body>\n</html>")
+    
+print("Output saved")
