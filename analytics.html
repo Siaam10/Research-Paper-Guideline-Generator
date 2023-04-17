@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>https://analyticsindiamag.com/hands-on-guide-to-using-vision-transformer-for-image-classification/</title>
+</head>
+<body>
+<pre>
+
+
+
+
+
+
+
+Hands-on guide to using Vision transformer for Image classification
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+Skip to content
+
+
+
+
+
+
+
+ 
+About
+Advertise
+Videos
+Conferences
+Contact Us
+ 
+
+ Menu
+
+
+About
+Advertise
+Videos
+Conferences
+Contact Us
+ 
+
+
+
+
+
+
+
+
+ 
+ 
+
+
+
+
+
+
+
+
+ 
+
+ Search
+
+
+
+
+ Close this search box.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Breaking Boundaries
+Edge of Innovation
+Endless Origins
+Geek Fusion
+Insight Inquiries
+Limitless Creativity
+Mapping the Zeitgeist
+Mystery Vault
+Quixotic Intellectuals
+ 
+
+ Menu
+
+
+Breaking Boundaries
+Edge of Innovation
+Endless Origins
+Geek Fusion
+Insight Inquiries
+Limitless Creativity
+Mapping the Zeitgeist
+Mystery Vault
+Quixotic Intellectuals
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+Published on
+										January 29, 2022					
+
+
+
+ 
+
+In 
+
+Mystery Vault 
+
+
+
+
+
+
+
+Hands-on guide to using Vision transformer for Image classification 
+
+
+
+			Vision transformer (ViT) is a transformer used in the field of computer vision that works based on the working nature of the transformers used in the field of natural language processing. Internally, the transformer learns by measuring the relationship between input token pairs. In computer vision, we can use the patches of images as the token.		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+By 
+										Yugesh Verma					
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+ 
+
+
+
+
+
+ 
+
+
+
+
+
+ 
+
+
+
+
+
+ 
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+Vision transformers are one of the popular transformers in the field of deep learning. Before the origin of the vision transformers, we had to use convolutional neural networks in computer vision for complex tasks. With the introduction of vision transformers, we got one more powerful model for computer vision tasks as we have BERT and GPT for complex NLP tasks. In this article, we will learn how can we use a vision transformer for an image classification task. For this purpose, we will demonstrate a hands-on implementation of a vision transformer for image classification. Following are the major points to be covered in this article. 
+Table of contents
+About vision transformersImplementing vision transformer for image classification
+Step 1: Initializing setup
+Step 2: Building network
+
+
+
+
+
+
+
+AIM Daily XO 
+
+
+
+Join our editors every weekday evening as they steer you through the most significant news of the day, introduce you to fresh perspectives, and provide unexpected moments of joy 
+
+
+
+
+
+
+
+
+
+
+
+								Email							
+
+
+
+
+
+
+
+Sign up
+
+
+
+
+
+
+
+
+
+Your newsletter subscriptions are subject to AIM Privacy Policy and Terms and Conditions. 
+
+
+
+
+
+
+
+Step 3 Building vision transformer 
+Step 4: compile and trainDownload our Mobile App
+
+  
+Let’s start with understanding the vision transformer first.
+About vision transformers
+Vision transformer (ViT) is a transformer used in the field of computer vision that works based on the working nature of the transformers used in the field of natural language processing. Internally, the transformer learns by measuring the relationship between input token pairs. In computer vision, we can use the patches of images as the token. This relationship can be learned by providing attention in the network. This can be done either in conjunction with a convolutional network or by replacing some components of convolutional networks. These structures of the network can be applied to the image classification tasks. The full procedure of image classification using a vision transformer can be explained by the following image.
+
+Image source
+In the above image, we can see the procedure we are required to follow. In this article, we are going to discuss how we can perform all these steps using the Keras library. 
+For this implementation, we will take the following steps. 
+Step 1: Initializing setup
+ In this section, we will be performing some of the basic procedures of modelling like importing datasets, defining hyperparameters, data augmentation, etc.
+Step 1.1: Importing data      
+Let’s start by obtaining data. In this procedure, we are going to use the CIFAR-10 dataset provided by the Keras library. In the dataset, we have 50,000 images of size 32×32 in the training dataset and 10,000 images of the same size in the test dataset. We have the following labels with these images:
+Index LabelDescription10airplane21automobile32bird43cat54deer65dog76frog87horse98ship109truck
+We can call this dataset using the following lines of codes.
+from keras.datasets import cifar10
+(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+
+Output:
+
+Checking the shape of the datasets.
+print(f"x_train: {x_train.shape} - y_train: {y_train.shape}")
+print(f"x_test: {x_test.shape} - y_test: {y_test.shape}")
+
+Output:
+
+Step 1.2: Defining hyperparameters
+In this section, we will define some of the parameters that we will use with the other sub-processes.  
+learning_rate = 0.001
+weight_decay = 0.0001
+batch_size = 256
+num_epochs = 100
+image_size = 72
+patch_size = 6  
+num_patches = (image_size // patch_size) ** 2
+projection_dim = 64
+num_heads = 4
+transformer_units = [projection_dim * 2,projection_dim,] 
+transformer_layers = 8
+mlp_head_units = [2048, 1024]
+
+Considering the above parameters, we can say that in the process we will be using 100 epochs in the training and will resize the image and convert the image into patches.
+Now, we will call the important libraries.
+Step 1.3: Data augmentation 
+In the procedure, we will provide augmented images to the transformer. In the augmentation we will normalize and resize the images then we will randomly flip the images. This procedure will be completed in sequential methods and using the Keras provided layers.
+import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import tensorflow_addons as tfa
+data_augmentation = keras.Sequential(
+    [
+        layers.Normalization(),
+        layers.Resizing(72, 72),
+        layers.RandomFlip("horizontal"),
+        layers.RandomRotation(factor=0.02),
+        layers.RandomZoom(
+            height_factor=0.2, width_factor=0.2
+        ),
+    ],
+    name="data_augmentation",
+)
+data_augmentation.layers[0].adapt(x_train)
+
+In the final step of the augmentation, we will compute the mean and the variance of the training data for normalization.  
+Step 1.4 visualizing images
+ Let’s see how the images will look in the dataset.
+import matplotlib.pyplot as plt
+ 
+plt.figure(figsize=(4, 4))
+image = x_train[np.random.choice(range(x_train.shape[0]))]
+plt.imshow(image.astype("uint8"))
+plt.axis("off")
+
+Output:
+
+The above output is the example of an image in the dataset, since images in the data have a low size it is not clearly visible. Now we can proceed to our second step.
+Step 2: Building network
+In this step, we will be building a network where we will use an MLP network and a layer that will separate our images into patches. Also, we will use a patch encoder to transform the patches where it will project the patches into vectors of size 64. Let’s start by building an MLP network.
+Step 2.1: Building MLP network 
+def mlp(x, hidden_units, dropout_rate):
+    for units in hidden_units:
+        x = layers.Dense(units, activation=tf.nn.gelu)(x)
+        x = layers.Dropout(dropout_rate)(x)
+    return x
+In the above codes, we can see we have built an MLP network that is simply having a dense layer and a dropout layer. 
+Step 2.2 Patch maker
+In this step, we will define a network that can convert the images into patches. For this, we mainly use the tensor flow provided extract_patches module.  
+class Patches(layers.Layer):
+    def __init__(self, patch_size):
+        super(Patches, self).__init__()
+        self.patch_size = patch_size
+ 
+    def call(self, images):
+        batch_size = tf.shape(images)[0]
+        patches = tf.image.extract_patches(
+            images=images,
+            sizes=[1, self.patch_size, self.patch_size, 1],
+            strides=[1, self.patch_size, self.patch_size, 1],
+            rates=[1, 1, 1, 1],
+            padding="VALID",
+        )
+        patch_dims = patches.shape[-1]
+        patches = tf.reshape(patches, [batch_size, -1, patch_dims])
+        return patches
+n = int(np.sqrt(patches.shape[1]))
+plt.figure(figsize=(4, 4))
+for i, patch in enumerate(patches[0]):
+    ax = plt.subplot(n, n, i + 1)
+    patch_img = tf.reshape(patch, (patch_size, patch_size, 3))
+    plt.imshow(patch_img.numpy().astype("uint8"))
+    plt.axis("off")
+
+Output:
+
+In the above output, we can see that we have converted the images into patches using which the vision transformer will learn to classify the images.
+Step 2.3: Patch encoder
+This patch encoder will perform the linear transformation of the image patches and add a learnable position embedding to the projected vector.
+class PatchEncoder(layers.Layer):
+    def __init__(self, num_patches, projection_dim):
+        super(PatchEncoder, self).__init__()
+        self.num_patches = num_patches
+        self.projection = layers.Dense(units=projection_dim)
+        self.position_embedding = layers.Embedding(
+            input_dim=num_patches, output_dim=projection_dim
+        )
+ 
+    def call(self, patch):
+        positions = tf.range(start=0, limit=self.num_patches, delta=1)
+        encoded = self.projection(patch) + self.position_embedding(positions)
+        return encoded
+
+After building this network we are ready to build a vision transformer model.
+Step 3: Building vision transformer   
+In this section, we will build blocks for the vision transformer. As discussed and implemented above we will use the augmented data that will go through the patch maker block and then the data will go through the patch encoder block. In the transformer block, we will use a self-attention layer on the patch sequences. Output from the transformer block will go through a classification head which will help in producing the final outputs. Let’s see in the below codes.
+def create_vit_classifier():
+    inputs = layers.Input(shape=input_shape)
+    augmented = data_augmentation(inputs)
+    patches = Patches(patch_size)(augmented)
+    encoded_patches = PatchEncoder(num_patches, projection_dim)(patches)
+ 
+    for _ in range(transformer_layers):
+        x1 = layers.LayerNormalization(epsilon=1e-6)(encoded_patches)
+        attention_output = layers.MultiHeadAttention(
+            num_heads=num_heads, key_dim=projection_dim, dropout=0.1
+        )(x1, x1)
+        x2 = layers.Add()([attention_output, encoded_patches])
+        x3 = layers.LayerNormalization(epsilon=1e-6)(x2)
+        x3 = mlp(x3, hidden_units=transformer_units, dropout_rate=0.1)
+        encoded_patches = layers.Add()([x3, x2])
+ 
+    representation = layers.LayerNormalization(epsilon=1e-6)(encoded_patches)
+    representation = layers.Flatten()(representation)
+    representation = layers.Dropout(0.5)(representation)
+    features = mlp(representation, hidden_units=mlp_head_units, dropout_rate=0.5)
+    logits = layers.Dense(num_classes)(features)
+    model = keras.Model(inputs=inputs, outputs=logits)
+    return model
+
+Using the above function we can define a classifier using the vision transformer in which we have provided the methods for data augmentation, patch making, and patch encoding. Encoded patches will be our final input as image representation to the transformer. Flatten layer will help us to change the shape of the output.    
+Step 4: Compiling and training
+In this section we will; compile and train the model that we have created and after that, we will evaluate the model in terms of accuracy.
+Step  4.1: Compiling the model 
+Using the below line of codes we can compile the model.
+optimizer = tfa.optimizers.AdamW(learning_rate=learning_rate, weight_decay=weight_decay)
+ 
+model.compile(
+    optimizer=optimizer,
+    loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+    metrics=[
+       keras.metrics.SparseCategoricalAccuracy(name="accuracy"),
+       keras.metrics.SparseTopKCategoricalAccuracy(5, name="top-5-accuracy"), ],)
+
+In the compilation, we have used Adam optimizer with sparse categorical cross-entropy loss.
+Step  4.2: Training 
+Training of the transformer can be done using the following lines of codes:
+history = model.fit(
+    x=x_train,
+    y=y_train,
+    batch_size=batch_size,
+    epochs=num_epochs,
+    validation_split=0.1,)
+
+Output:
+
+In the above output, we can see that the training has started. It may take a significant amount of time. So to do it fast, it is recommended to enable the GPU during the training. In Google Colab, we can find out the GPU setting in the manage runtime session tab under the runtime tab.
+Step 4.3: Checking accuracy
+Let’s check the accuracy of the vision transformer in the image classification task.
+_, accuracy, top_5_accuracy = model.evaluate(x_test, y_test)
+print(f"Test accuracy: {round(accuracy * 100, 2)}%")
+print(f"Test top 5 accuracy: {round(top_5_accuracy * 100, 2)}%")
+
+Output:
+
+Here in the above output, we can see that our model has a performance of 84.21% accuracy and our top 5 accuracies are 99.24%.  
+Final words
+In this article, we have introduced the transformer and seen how it can be used for image classification through an image. We implemented a vision transformer for image classification using the CIFAR-10 dataset and followed all the steps that were included in the image.  We achieved a very good result in the task using this transformer.
+References
+Vision transformerLink for the codes   
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+ 
+
+
+
+
+
+ 
+
+
+
+
+
+ 
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+Sign up for The AI Forum for India 
+
+
+
+Analytics India Magazine is excited to announce the launch of AI Forum for India –  a community, created in association with NVIDIA, aimed at fostering collaboration and growth within the artificial intelligence (AI) industry in India. 
+
+
+
+
+
+
+
+
+
+
+
+ 
+Join the Community
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+						Yugesh is a graduate in automobile engineering and worked as a data analyst intern. He completed several Data Science projects. He has a strong interest in Deep Learning and writing blogs on data science and machine learning.					
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+Our Upcoming Events 
+
+
+
+ 27-28th Apr, 2023 I BangaloreData Engineering Summit (DES) 2023 
+
+
+
+
+
+
+Register
+
+
+
+
+
+
+
+23 Jun, 2023 | BangaloreMachineCon India 2023 
+
+
+
+
+
+
+Register
+
+
+
+
+
+
+
+21 Jul, 2023 | New YorkMachineCon USA 2023 
+
+
+
+
+
+
+More Details
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+3 Ways to Join our Community 
+
+
+
+
+
+
+
+Telegram groupDiscover special offers, top stories, upcoming events, and more.
+
+ 
+
+
+
+
+
+
+Join Telegram
+
+
+
+
+
+
+
+
+
+
+
+Discord ServerStay Connected with a larger ecosystem of data science and ML Professionals 
+
+
+
+
+
+
+Join Discord Community
+
+
+
+
+
+
+
+
+
+
+
+Subscribe to our Daily newsletter 
+
+
+
+Get our daily awesome stories & videos in your inbox 
+
+
+
+
+
+
+Subscribe
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MOST POPULAR 
+
+
+
+ 
+
+
+
+
+
+
+
+				Balenciaga Goes Gaga Over AI			
+
+
+Even with powerful tools like Midjourney, the creator believes that AI still can’t generate “a good aesthetic judgement” on its own.
+
+
+
+
+
+
+
+
+
+
+				More Bloodbath, Layoffs, Job Losses: A Peak Recession Scene 			
+
+
+While the layoffs are happening in the tech industry in large numbers, they are just a proactive measure against recession. The question arises, how many tech layoffs until the recession finally reaches the doorstep?
+
+
+
+
+
+
+
+
+
+
+				AI Chip Cos Jostle for Dominance, But We Could Have a Surprise Winner			
+
+
+Developers are now at more risk of being stuck in a particular architecture because AI models will most likely not be portable between different chip makers
+
+
+
+
+
+
+
+
+
+
+				Future Tense: What Happens to a Data Scientist in an LLM World?			
+
+
+The role of data scientists is swiftly transforming and is probably being elbowed out by foundational models
+
+
+
+
+
+
+
+
+
+
+				Microsoft ‘JARVIS’ is the Path Towards AGI			
+
+
+Bringing together various expert systems with language as an interface might move us towards AGI. 
+
+
+
+
+
+
+
+
+
+
+				Space Policy ’23: Govt Flings Open the Doors for Pvt Players			
+
+
+The policy pushes for a public-private partnership to drive 5x growth in the sector
+
+
+
+
+
+
+
+
+
+
+				Here’s Why US VCs Are Pumping Cash into Chinese AI Startups			
+
+
+US-based VC firms are investing in Chinese AI startups building OpenAI rival
+
+
+
+
+
+
+
+
+
+
+				Is India the Last Straw for Apple’s Sinking Ship?			
+
+
+Apple’s new retail locations might be the key to pull up their lacklustre PC sales.
+
+
+
+
+
+
+
+
+
+
+				Stop the AI Abuse, or Anthis Will			
+
+
+Currently machines have no inner life, no happiness or suffering. But it may not be long before they do, believes Jacy Reese Anthis
+
+
+
+
+
+
+
+
+
+
+				How Brain Drain Shaped AI Innovations of the Current World			
+
+
+Are the lines so sharp between research and industry when it comes to AI? 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Our mission is to bring about better-informed and more conscious decisions about technology through authoritative, influential, and trustworthy journalism. 
+
+
+
+Shape The Future of Tech 
+
+
+
+
+
+
+CONTACT US ⟶
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+AIM discovers new ideas and breakthroughs that create new relationships, new industries, and new ways of thinking. AIM is the crucial source of knowledge and concepts that make sense of a reality that is always changing. Our discussions shed light on how technology is transforming many facets of our life, from business to society to culture.  
+
+
+
+ 
+
+
+Facebook
+ 
+
+
+
+Twitter
+ 
+
+
+
+Youtube
+ 
+
+
+
+Linkedin
+ 
+
+
+
+Instagram
+ 
+
+
+
+
+
+
+
+
+
+
+Who we are 
+
+
+
+
+
+
+About Us
+
+
+
+
+Newsletters
+
+
+
+
+Podcast
+
+
+
+
+Videos
+
+
+
+
+Events
+
+
+
+
+Careers
+
+
+
+
+Editorial Calendar
+
+
+
+
+Contact Us
+
+
+
+
+
+
+
+OUR brands 
+
+
+
+
+
+
+MachineHack
+
+
+
+
+Best Firm Certification
+
+
+
+
+AIM Recruits
+
+
+
+
+AIM Research
+
+
+
+
+AIM Leaders Council
+
+
+
+
+Association of Data Scientists
+
+
+
+
+Penetration And Maturity (PeMa) Quadrant
+
+
+
+
+
+
+
+
+
+
+
+OUR Services 
+
+
+
+
+
+
+Advertise with us
+
+
+
+
+Bespoke Events
+
+
+
+
+Employer Branding
+
+
+
+
+Hackathons
+
+
+
+
+Recruitment Services
+
+
+
+
+Syndicated research
+
+
+
+
+Advisory
+
+
+
+
+Skill Assessment
+
+
+
+
+
+
+
+our conferences 
+
+
+
+
+
+
+Cypher
+
+
+
+
+MachineCon India
+
+
+
+
+MachineCon USA
+
+
+
+
+Machine Learning Developers Summit
+
+
+
+
+The Rising | Women in Tech Conference
+
+
+
+
+Data Engineering Summit
+
+
+
+
+
+
+
+
+
+
+
+AWARDS 
+
+
+
+
+
+
+AI100 Awards
+
+
+
+
+Data Science Excellence Awards
+
+
+
+
+40 under 40 Data Scientists
+
+
+
+
+Women in Tech Leadership
+
+
+
+
+Best Firm for Women in Tech
+
+
+
+
+Data Engineering Awards
+
+
+
+
+
+
+
+FOR DEVELOPERS 
+
+
+
+
+
+
+Hackathons
+
+
+
+
+Practice Skills
+
+
+
+
+Courses
+
+
+
+
+Discussion Board
+
+
+
+
+Job Board
+
+
+
+
+Technical Blogs
+
+
+
+
+AIM Campus Ambassador
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+© Analytics India Magazine Pvt Ltd & AIM Media House LLC 2023 
+
+
+
+
+
+
+
+
+
+
+Terms of use
+
+
+
+
+Privacy Policy
+
+
+
+
+Copyright
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</body>
+</html>
